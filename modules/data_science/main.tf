@@ -237,6 +237,12 @@ resource "google_storage_bucket_object" "notebook_startup_script" {
   name   = "notebook_startup_script.sh"
 }
 
+resource "google_storage_bucket_object" "notebook_tools_scripts" {
+  bucket = google_storage_bucket.user_scripts_bucket.name
+  name   = "ai-notebook-desktop-script.sh"
+  source = "${path.module}/scripts/usage/ai-notebook-desktop-script.sh"
+}
+
 resource "google_storage_bucket_iam_binding" "binding" {
   bucket  = google_storage_bucket.user_scripts_bucket.name
   role    = "roles/storage.admin"
