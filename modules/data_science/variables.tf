@@ -70,7 +70,8 @@ variable "folder_id" {
 variable "image_family" {
   description = "Image of the AI notebook."
   type        = string
-  default     = "tf-latest-cpu"
+  default     = "tf2-ent-latest-cpu"
+  #  default     = "tf-latest-cpu"
 }
 
 variable "image_project" {

@@ -45,7 +45,8 @@ locals {
     "compute.googleapis.com",
     "bigquery.googleapis.com",
     "notebooks.googleapis.com",
-    "bigquerystorage.googleapis.com"
+    "bigquerystorage.googleapis.com",
+    "logging.googleapis.com"
   ] : []
 }
 
@@ -197,7 +198,7 @@ resource "google_notebooks_instance" "ai_notebook" {
   network = local.network.self_link
   subnet  = local.subnet.self_link
 
-  post_startup_script = "${path.module}/scripts/build/samplenotebook.sh"
+  post_startup_script = "gs://${google_storage_bucket.user_scripts_bucket.name}/${google_storage_bucket_object.notebook_startup_script.name}"
 
   labels = {
     module = "data-science"
@@ -207,7 +208,12 @@ resource "google_notebooks_instance" "ai_notebook" {
     terraform  = "true"
     proxy-mode = "mail"
   }
+
   depends_on = [time_sleep.wait_120_seconds]
+}
+
+output "storage_object" {
+  value = google_storage_bucket_object.notebook_startup_script.name
 }
 
 resource "google_storage_bucket" "user_scripts_bucket" {
@@ -223,6 +229,12 @@ resource "google_storage_bucket" "user_scripts_bucket" {
     response_header = ["*"]
     max_age_seconds = 3600
   }
+}
+
+resource "google_storage_bucket_object" "notebook_startup_script" {
+  bucket = google_storage_bucket.user_scripts_bucket.name
+  source = "${path.module}/scripts/build/notebook_startup_script.sh"
+  name   = "notebook_startup_script.sh"
 }
 
 resource "google_storage_bucket_iam_binding" "binding" {
